@@ -26,14 +26,16 @@ defmodule DatadogLoggerBackend.Sender do
 
     case result do
       {:ok, sock} ->
+        IO.puts("Connected to #{host}")
         {:ok, %{state | sock: sock}}
 
-      {:error, _} ->
-        {:backoff, 1000, state}
+      {:error, reason} ->
+        IO.puts("Failed to connect to #{host}: #{reason}")
+        {:connect, :reconnect, state}
     end
   end
 
-  def disconnect(info, %{sock: sock} = s) do
+  def disconnect(info, %{sock: sock, host: host} = s) do
     :ok = :gen_tcp.close(sock)
 
     case info do
@@ -41,7 +43,7 @@ defmodule DatadogLoggerBackend.Sender do
         Connection.reply(from, :ok)
 
       {:error, :closed} ->
-        IO.puts("Connection closed")
+        IO.puts("Connection to #{host} closed")
 
       {:error, reason} ->
         reason = :inet.format_error(reason)
