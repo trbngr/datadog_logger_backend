@@ -46,9 +46,7 @@ defmodule DatadogLoggerBackend do
   defp send_log(lvl, {Logger, msg, _ts, meta}, state) do
     {:ok, hostname} = :inet.gethostname()
 
-    metadata =
-      meta
-      |> normalize()
+    metadata = normalize(meta)
 
     message =
       case msg do
