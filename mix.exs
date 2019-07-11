@@ -18,6 +18,7 @@ defmodule DatadogLoggerBackend.MixProject do
         {DatadogLoggerBackend.Application,
          [
            workers: 2,
+           max_overflow_workers: 20,
            timeout: :timer.seconds(5),
            host: "intake.logs.datadoghq.com",
            port: 10514,

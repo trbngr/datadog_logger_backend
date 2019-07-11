@@ -3,12 +3,12 @@ defmodule DatadogLoggerBackend.Application do
 
   alias DatadogLoggerBackend.Config
 
-  defp poolboy_config(workers) do
+  defp poolboy_config({workers, max_overflow_workers}) do
     [
       {:name, {:local, :datadog_sender}},
       {:worker_module, DatadogLoggerBackend.Sender},
       {:size, workers},
-      {:max_overflow, 2}
+      {:max_overflow, max_overflow_workers}
     ]
   end
 

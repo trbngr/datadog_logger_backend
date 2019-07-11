@@ -7,7 +7,7 @@ defmodule DatadogLoggerBackend.Config do
       |> Keyword.merge(supplied_config)
       |> Enum.map(&normalize/1)
 
-    {conf[:workers], Keyword.delete(conf, :workers)}
+    {{conf[:workers], conf[:max_overflow_workers]}, Keyword.delete(conf, :workers)}
   end
 
   defp normalize({key, {System, var, default}}), do: {key, System.get_env(var) || default}
