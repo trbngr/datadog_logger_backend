@@ -1,6 +1,4 @@
 defmodule DatadogLoggerBackend do
-  alias DatadogLoggerBackend.Config
-
   @behaviour :gen_event
 
   @impl true
