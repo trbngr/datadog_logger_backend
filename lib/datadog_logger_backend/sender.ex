@@ -11,7 +11,9 @@ defmodule DatadogLoggerBackend.Sender do
     Connection.call(conn, {:recv, bytes, timeout})
   end
 
-  def close(conn), do: Connection.call(conn, :close)
+  def close(conn) do
+    Connection.call(conn, :close)
+  end
 
   def init(opts) do
     state = Enum.into(opts, %{sock: nil})
@@ -21,7 +23,7 @@ defmodule DatadogLoggerBackend.Sender do
   def connect(_, state) do
     %{sock: nil, host: host, port: port, opts: opts, timeout: timeout} = state
 
-    opts = [active: false] ++ opts
+    opts = [active: false, keepalive: true] ++ opts
     result = :gen_tcp.connect(host, port, opts, timeout)
 
     case result do
@@ -58,11 +60,21 @@ defmodule DatadogLoggerBackend.Sender do
   end
 
   def handle_call({:send, data}, _, %{sock: sock, api_token: api_token} = s) do
+    %{self_debug: self_debug} = s
+
     case :gen_tcp.send(sock, [api_token, " ", data, ?\r, ?\n]) do
       :ok ->
+        if self_debug do
+          IO.puts("#{inspect(self())} - sent ok")
+        end
+
         {:reply, :ok, s}
 
       {:error, _} = error ->
+        if self_debug do
+          IO.puts("#{inspect(self())} - error sending: #{inspect(error)}")
+        end
+
         {:disconnect, error, error, s}
     end
   end

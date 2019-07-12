@@ -18,12 +18,13 @@ defmodule DatadogLoggerBackend.MixProject do
         {DatadogLoggerBackend.Application,
          [
            workers: 2,
-           max_overflow_workers: 20,
+           max_overflow_workers: 2,
            timeout: :timer.seconds(5),
            host: "intake.logs.datadoghq.com",
            port: 10514,
            opts: [],
            level: :debug,
+           self_debug: false,
            api_token: {System, "DATADOG_API_KEY"}
          ]}
     ]

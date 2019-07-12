@@ -1,6 +1,8 @@
 defmodule DatadogLoggerBackend do
   @behaviour :gen_event
 
+  alias DatadogLoggerBackend.Timestamp
+
   @impl true
   def init(_) do
     if user = Process.whereis(:user) do
@@ -41,7 +43,7 @@ defmodule DatadogLoggerBackend do
 
   def handle_event(:flush, state), do: {:ok, state}
 
-  defp send_log(lvl, {Logger, msg, _ts, meta}, state) do
+  defp send_log(lvl, {Logger, msg, ts, meta}, state) do
     {:ok, hostname} = :inet.gethostname()
 
     metadata = normalize(meta)
@@ -53,11 +55,12 @@ defmodule DatadogLoggerBackend do
       end
 
     values = %{
-      "message" => message,
-      "level" => lvl,
-      "source" => "elixir",
-      "host" => List.to_string(hostname),
-      "service" => state.service
+      message: message,
+      level: lvl,
+      source: :elixir,
+      timestamp: Timestamp.create(ts),
+      host: List.to_string(hostname),
+      service: state.service
     }
 
     data =
